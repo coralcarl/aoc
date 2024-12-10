@@ -1,0 +1,113 @@
+#![allow(unused_variables)]
+
+struct Point {
+    x: usize,
+    y: usize,
+}
+
+enum Direction {
+    North,
+    East,
+    South,
+    West,
+}
+
+impl Direction {
+    fn from(symbol: char) -> Direction {
+        match symbol {
+            '^' => Direction::North,
+            '>' => Direction::East,
+            'v' => Direction::South,
+            '<' => Direction::West,
+                _ => panic!("Unknown symbol: {}", symbol.to_string()),
+        }
+    }
+}
+
+struct Guard {
+    direction: Direction,
+    location: Point,
+}
+
+impl Guard {
+    fn turn_right(&mut self) {
+        use Direction::*;
+        self.direction = match self.direction {
+            North => East,
+            East => South,
+            South => West,
+            West => North,
+        }
+    }
+}
+
+struct Lab {
+    guard: Guard,
+    width: usize,
+    height: usize,
+    obstacles: Vec<Point>,
+}
+
+fn parse(input: &str) -> Lab {
+    let guard: Option<Guard> = None;
+    let mut width = 0;
+    let mut height = 0;
+    let obstacles: Vec<Point> = Vec::new();
+
+    for (row, line) in input.lines().enumerate() {
+        if height < row {
+            height = row;
+        }
+
+        for (col, value) in line.chars().enumerate() {
+            if width < col {
+                width = col;
+            }
+
+            match value {
+                '#' => obstacles.push(Point {x: col, y: row}),
+                '^' | '>' | 'v' | '<' => guard = Some(Guard {Direction::from(value), location: Point {x: col, y: row } }),
+                '.' => (),
+                _ => panic!("Unknown value: {}", value.to_string()),
+            }
+
+
+        }
+    }
+
+    Lab {
+        guard: guard.unwrap(),
+        width: width + 1,
+        height: height + 1,
+        obstacles,
+    }
+}
+
+pub fn part1(input: &str) -> String {
+    "".to_string()
+}
+
+pub fn part2(input: &str) -> String {
+    "".to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn example() {
+        let input = "....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...";
+        assert_eq!(part1(&input), "41");
+        assert_eq!(part2(&input), "");
+    }
+}

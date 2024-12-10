@@ -1,4 +1,5 @@
-#[allow(dead_code)]
+#![allow(unused_variables)]
+
 pub fn part1(input: &str) -> String {
     "".to_string()
 }
