@@ -9,9 +9,10 @@ mod day_06;
 mod day_07;
 mod day_08;
 mod day_09;
+mod day_10;
 
 fn main() {
-    let days: Vec<(fn(&str) -> String, fn(&str) -> String)> = vec![
+    let days: Vec<(fn(&str) -> u64, fn(&str) -> u64)> = vec![
         (day_01::part1, day_01::part2),
         (day_02::part1, day_02::part2),
         (day_03::part1, day_03::part2),
@@ -21,6 +22,7 @@ fn main() {
         (day_07::part1, day_07::part2),
         (day_08::part1, day_08::part2),
         (day_09::part1, day_09::part2),
+        (day_10::part1, day_10::part2),
     ];
 
     for (day, (part1, part2)) in days.iter().enumerate() {

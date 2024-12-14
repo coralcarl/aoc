@@ -54,18 +54,17 @@ fn cmp_pages(left: &str, right: &str, rules: &Rules) -> Ordering {
     }
 }
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> u64 {
     let (rules, updates) = parse(&input);
 
     updates
         .iter()
         .filter(|update| is_valid(update, &rules))
-        .map(|update| update[update.len() / 2].parse::<i32>().unwrap())
-        .sum::<i32>()
-        .to_string()
+        .map(|update| update[update.len() / 2].parse::<u64>().unwrap())
+        .sum()
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> u64 {
     let (rules, mut updates) = parse(&input);
 
     updates
@@ -73,10 +72,9 @@ pub fn part2(input: &str) -> String {
         .filter(|update| !is_valid(update, &rules))
         .map(|update| {
             update.sort_unstable_by(|a, b| cmp_pages(a, b, &rules));
-            update[update.len() / 2].parse::<i32>().unwrap()
+            update[update.len() / 2].parse::<u64>().unwrap()
         })
-        .sum::<i32>()
-        .to_string()
+        .sum()
 }
 
 #[cfg(test)]
@@ -114,7 +112,7 @@ mod tests {
 75,97,47,61,53
 61,13,29
 97,13,75,29,47";
-        assert_eq!(part1(&input), "143");
-        assert_eq!(part2(&input), "123");
+        assert_eq!(part1(&input), 143);
+        assert_eq!(part2(&input), 123);
     }
 }

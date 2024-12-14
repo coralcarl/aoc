@@ -76,15 +76,14 @@ fn tokenizer(input: &str, valid_tokens: Vec<&str>) -> Vec<Token> {
     tokens
 }
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> u64 {
     tokenizer(&input, vec!["mul"])
         .iter()
         .map(|tk| tk.values[0] * tk.values[1])
         .sum::<u64>()
-        .to_string()
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> u64 {
     let mut enabled = true;
     let mut result = 0;
 
@@ -98,7 +97,7 @@ pub fn part2(input: &str) -> String {
             _ => {}
         }
     }
-    result.to_string()
+    result
 }
 
 #[cfg(test)]
@@ -108,12 +107,12 @@ mod tests {
     #[test]
     fn example1() {
         let input = "xmul(2,4)%&mul[3,iw!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
-        assert_eq!(part1(&input), "161");
+        assert_eq!(part1(&input), 161);
     }
 
     #[test]
     fn example2() {
         let input = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
-        assert_eq!(part2(&input), "48");
+        assert_eq!(part2(&input), 48);
     }
 }

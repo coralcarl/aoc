@@ -1,4 +1,4 @@
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> u64 {
     let lines = input
         .trim()
         .split('\n')
@@ -98,10 +98,10 @@ pub fn part1(input: &str) -> String {
         }
     }
 
-    (horizontals + verticals + diagonals).to_string()
+    horizontals + verticals + diagonals
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> u64 {
     let lines = input
         .trim()
         .split('\n')
@@ -138,7 +138,7 @@ pub fn part2(input: &str) -> String {
             }
         }
     }
-    x.to_string()
+    x
 }
 
 #[cfg(test)]
@@ -157,7 +157,7 @@ SMSMSASXSS
 SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
-        assert_eq!(part1(&input), "18");
-        assert_eq!(part2(&input), "9");
+        assert_eq!(part1(&input), 18);
+        assert_eq!(part2(&input), 9);
     }
 }

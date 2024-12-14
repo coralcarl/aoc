@@ -124,7 +124,7 @@ fn parse(input: &str) -> Lab {
     }
 }
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> u64 {
     let Lab {
         mut guard,
         width,
@@ -140,14 +140,14 @@ pub fn part1(input: &str) -> String {
             || guard.position.x == width as i32
             || guard.position.y == height as i32
         {
-            return visited.len().to_string();
+            return visited.len() as u64;
         }
 
         visited.insert(guard.position);
     }
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> u64 {
     let lab = parse(&input);
     let Lab {
         mut guard,
@@ -200,7 +200,7 @@ pub fn part2(input: &str) -> String {
         }
     }
 
-    valid.to_string()
+    valid
 }
 
 #[cfg(test)]
@@ -219,7 +219,7 @@ mod tests {
 ........#.
 #.........
 ......#...";
-        assert_eq!(part1(&input), "41");
-        assert_eq!(part2(&input), "6");
+        assert_eq!(part1(&input), 41);
+        assert_eq!(part2(&input), 6);
     }
 }

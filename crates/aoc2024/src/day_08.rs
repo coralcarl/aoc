@@ -38,7 +38,7 @@ fn parse(input: &str) -> City {
     }
 }
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> u64 {
     let City {
         frequencies,
         width,
@@ -62,11 +62,10 @@ pub fn part1(input: &str) -> String {
     antinodes
         .iter()
         .filter(|(x, y)| (*x as usize) < width && (*y as usize) < height)
-        .count()
-        .to_string()
+        .count() as u64
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> u64 {
     let City {
         frequencies,
         width,
@@ -87,7 +86,7 @@ pub fn part2(input: &str) -> String {
                 let mut y = *y0;
 
                 while x >= 0 && x < width as i32 && y >= 0 && y < height as i32 {
-                    antinodes.insert((x,y));
+                    antinodes.insert((x, y));
                     x -= xd;
                     y -= yd;
                 }
@@ -95,7 +94,7 @@ pub fn part2(input: &str) -> String {
                 let mut y = *y1;
 
                 while x >= 0 && x < width as i32 && y >= 0 && y < height as i32 {
-                    antinodes.insert((x,y));
+                    antinodes.insert((x, y));
                     x += xd;
                     y += yd;
                 }
@@ -103,7 +102,7 @@ pub fn part2(input: &str) -> String {
         }
     }
 
-    antinodes.len().to_string()
+    antinodes.len() as u64
 }
 
 #[cfg(test)]
@@ -124,7 +123,7 @@ mod tests {
 .........A..
 ............
 ............";
-        assert_eq!(part1(&input), "14");
-        assert_eq!(part2(&input), "34");
+        assert_eq!(part1(&input), 14);
+        assert_eq!(part2(&input), 34);
     }
 }

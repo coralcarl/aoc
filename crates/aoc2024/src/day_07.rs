@@ -46,24 +46,22 @@ fn solve_eq(result: u64, current: u64, remaining: &[u64], concat: bool) -> u64 {
     0
 }
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> u64 {
     let equations = parse(&input);
 
     equations
         .iter()
         .map(|(result, numbers)| solve_eq(*result, numbers[0], &numbers[1..], false))
         .sum::<u64>()
-        .to_string()
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> u64 {
     let equations = parse(&input);
 
     equations
         .iter()
         .map(|(result, numbers)| solve_eq(*result, numbers[0], &numbers[1..], true))
         .sum::<u64>()
-        .to_string()
 }
 
 #[cfg(test)]
@@ -81,7 +79,7 @@ mod tests {
 192: 17 8 14
 21037: 9 7 18 13
 292: 11 6 16 20";
-        assert_eq!(part1(&input), "3749");
-        assert_eq!(part2(&input), "11387");
+        assert_eq!(part1(&input), 3749);
+        assert_eq!(part2(&input), 11387);
     }
 }
