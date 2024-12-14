@@ -25,8 +25,10 @@ fn main() {
         (day_10::part1, day_10::part2),
     ];
 
+    let path = env!("CARGO_MANIFEST_DIR");
+
     for (day, (part1, part2)) in days.iter().enumerate() {
-        let path = format!("input/{:02}.txt", day + 1);
+        let path = format!("{path}/input/{:02}.txt", day + 1);
         let file = read_to_string(&path);
 
         println!("========= Day {:02} =========", day + 1);
