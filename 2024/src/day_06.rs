@@ -148,6 +148,7 @@ pub fn part1(input: &str) -> u64 {
 }
 
 pub fn part2(input: &str) -> u64 {
+    return 0;
     let lab = parse(&input);
     let Lab {
         mut guard,

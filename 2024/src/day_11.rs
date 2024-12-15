@@ -17,7 +17,6 @@ fn blink(mut stones: Vec<u64>, count: usize) -> Vec<u64> {
                 }
             }
         }
-        println!("{}", stones.len());
         stones = new_stones;
     }
     stones
@@ -36,6 +35,7 @@ pub fn part1(input: &str) -> u64 {
 }
 
 pub fn part2(input: &str) -> u64 {
+    return 0;
     blink(
         input
             .trim()

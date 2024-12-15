@@ -1,4 +1,7 @@
-use std::{fs::read_to_string, time::Instant};
+use std::{
+    fs::read_to_string,
+    time::{Duration, Instant},
+};
 
 mod day_01;
 mod day_02;
@@ -11,6 +14,7 @@ mod day_08;
 mod day_09;
 mod day_10;
 mod day_11;
+mod day_12;
 
 fn main() {
     let days: Vec<(fn(&str) -> u64, fn(&str) -> u64)> = vec![
@@ -25,6 +29,7 @@ fn main() {
         (day_09::part1, day_09::part2),
         (day_10::part1, day_10::part2),
         (day_11::part1, day_11::part2),
+        (day_12::part1, day_12::part2),
     ];
 
     let path = env!("CARGO_MANIFEST_DIR");
@@ -42,12 +47,22 @@ fn main() {
                 start = Instant::now();
                 let solution2 = part2(&input);
                 let time2 = start.elapsed();
-                println!("{:>7.3}s Part 1: {solution1}", time1.as_secs_f64());
-                println!("{:>7.3}s Part 2: {solution2}", time2.as_secs_f64());
+                println!("{} Part 1: {solution1}", readable_duration(time1));
+                println!("{} Part 2: {solution2}", readable_duration(time2));
             }
             Err(_) => {
                 println!("File not found");
             }
         }
+    }
+}
+
+fn readable_duration(d: Duration) -> String {
+    if d.as_secs() > 0 {
+        return format!("{:6.2}s ", d.as_secs_f64());
+    } else if d.as_millis() > 0 {
+        return format!("{:3}ms", d.as_millis());
+    } else {
+        return format!("{:3}μs", d.as_micros());
     }
 }
