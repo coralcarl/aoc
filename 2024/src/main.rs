@@ -15,6 +15,7 @@ mod day_09;
 mod day_10;
 mod day_11;
 mod day_12;
+mod day_13;
 
 fn main() {
     let days: Vec<(fn(&str) -> u64, fn(&str) -> u64)> = vec![
@@ -30,6 +31,7 @@ fn main() {
         (day_10::part1, day_10::part2),
         (day_11::part1, day_11::part2),
         (day_12::part1, day_12::part2),
+        (day_13::part1, day_13::part2),
     ];
 
     let path = env!("CARGO_MANIFEST_DIR");

@@ -20,7 +20,7 @@ pub mod geometry {
 
     use std::{
         array,
-        ops::{Add, Index, Mul, Sub},
+        ops::{Add, AddAssign, Index, Mul, Sub},
         slice::SliceIndex,
     };
 
@@ -98,6 +98,17 @@ pub mod geometry {
 
         fn add(self, rhs: Self) -> Self::Output {
             Self::new(array::from_fn(|i| self.data[i] + rhs.data[i]))
+        }
+    }
+
+    impl<T, const N: usize> AddAssign for GenericPoint<T, N>
+    where
+        T: AddAssign + Copy,
+    {
+        fn add_assign(&mut self, rhs: Self) {
+            for i in 0..self.data.len() {
+                self.data[i] += rhs.data[i];
+            }
         }
     }
 
