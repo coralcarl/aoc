@@ -12,10 +12,15 @@ pub fn part2(input: &str) -> u64 {
 mod tests {
     use super::*;
 
+    const EXAMPLE1: &str = "";
+
     #[test]
-    fn example() {
-        let input = "";
-        assert_eq!(part1(&input), 0);
-        assert_eq!(part2(&input), 0);
+    fn test_part1() {
+        assert_eq!(part1(&EXAMPLE1), 0);
+    }
+
+    #[test]
+    fn test_part2() {
+        assert_eq!(part2(&EXAMPLE1), 0);
     }
 }
