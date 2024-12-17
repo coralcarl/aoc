@@ -1,5 +1,5 @@
 use std::{
-    fs::read_to_string,
+    path::PathBuf,
     time::{Duration, Instant},
 };
 
@@ -18,6 +18,7 @@ mod day_12;
 mod day_13;
 mod day_14;
 mod day_15;
+mod day_16;
 
 fn main() {
     let days: Vec<(fn(&str) -> u64, fn(&str) -> u64)> = vec![
@@ -36,30 +37,22 @@ fn main() {
         (day_13::part1, day_13::part2),
         (day_14::part1, day_14::part2),
         (day_15::part1, day_15::part2),
+        (day_16::part1, day_16::part2),
     ];
 
-    let path = env!("CARGO_MANIFEST_DIR");
-
     for (day, (part1, part2)) in days.iter().enumerate() {
-        let path = format!("{path}/input/{:02}.txt", day + 1);
-        let file = read_to_string(&path);
+        let input_folder: PathBuf = [env!("CARGO_MANIFEST_DIR"), "input"].iter().collect();
+        let input = aoclib::read_input(input_folder, 2024, day + 1);
 
         println!("========= Day {:02} =========", day + 1);
-        match file {
-            Ok(input) => {
-                let mut start = Instant::now();
-                let solution1 = part1(&input);
-                let time1 = start.elapsed();
-                start = Instant::now();
-                let solution2 = part2(&input);
-                let time2 = start.elapsed();
-                println!("{} Part 1: {solution1}", readable_duration(time1));
-                println!("{} Part 2: {solution2}", readable_duration(time2));
-            }
-            Err(_) => {
-                println!("File not found");
-            }
-        }
+        let mut start = Instant::now();
+        let solution1 = part1(&input);
+        let time1 = start.elapsed();
+        start = Instant::now();
+        let solution2 = part2(&input);
+        let time2 = start.elapsed();
+        println!("{} Part 1: {solution1}", readable_duration(time1));
+        println!("{} Part 2: {solution2}", readable_duration(time2));
     }
 }
 

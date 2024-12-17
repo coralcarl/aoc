@@ -1,4 +1,79 @@
+use std::path::{Path, PathBuf};
 use std::{fmt::Debug, str::FromStr};
+
+use std::fs::File;
+use std::io::prelude::*;
+
+use reqwest::blocking::Client;
+
+pub mod geometry;
+
+static mut TOKEN: Option<&str> = None;
+
+pub fn read_input(input_folder: PathBuf, year: usize, day: usize) -> String {
+    let file_path = input_folder.join(format!("{day:02}.txt"));
+    let input = std::fs::read_to_string(&file_path);
+
+    match input {
+        Ok(raw) => raw,
+        Err(_) => {
+            let raw = download_input(year, day);
+            std::fs::create_dir_all(input_folder)
+                .unwrap_or_else(|_| panic!("Could not create directory for {year}"));
+            let mut file = File::create(&file_path)
+                .unwrap_or_else(|_| panic!("Could not create File {year}-{day:02}"));
+            file.write_all(&raw.bytes().collect::<Vec<u8>>())
+                .unwrap_or_else(|_| panic!("Could not write data to file {year}-{day:02}"));
+            raw
+        }
+    }
+}
+
+fn download_input(year: usize, day: usize) -> String {
+    let token = unsafe {
+        match TOKEN {
+            Some(token) => token,
+            None => {
+                let token_path = workspace_dir().join("token");
+                &std::fs::read_to_string(token_path).unwrap_or_else(|_| panic!("No token found."))
+            }
+        }
+    };
+
+    let client = Client::new();
+    let url = format!("https://adventofcode.com/{year}/day/{day:02}/input");
+    let mut response = client
+        .get(url)
+        .header("Cookie", format!("session={}", token.trim()))
+        .send()
+        .expect("No response from adventofcode.")
+        .text()
+        .unwrap_or_else(|_| panic!("Could not download input {year}-{day:02}"));
+    if response.starts_with("Puzzle inputs differ by user.") {
+        panic!("Session token invalid.");
+    }
+    if response.starts_with("Please don't repeatedly request this endpoint before it unlocks!") {
+        panic!("Input not yet available.");
+    }
+    if !response.ends_with('\n') {
+        response.push('\n');
+    }
+    response
+}
+
+fn workspace_dir() -> PathBuf {
+    let output = std::process::Command::new(env!("CARGO"))
+        .arg("locate-project")
+        .arg("--workspace")
+        .arg("--message-format=plain")
+        .output()
+        .unwrap()
+        .stdout;
+    Path::new(std::str::from_utf8(&output).unwrap().trim())
+        .parent()
+        .unwrap()
+        .to_path_buf()
+}
 
 pub fn read_number_grid<T: FromStr>(input: &str, token: &str) -> Vec<Vec<T>>
 where
@@ -13,124 +88,4 @@ where
         );
     }
     numbers
-}
-
-pub mod geometry {
-    #![allow(dead_code)]
-
-    use std::{
-        array,
-        ops::{Add, AddAssign, Index, Mul, Sub},
-        slice::SliceIndex,
-    };
-
-    use num::traits::{WrappingAdd, WrappingSub};
-
-    pub type Point<T> = GenericPoint<T, 2>;
-
-    impl<T> Point<T>
-    where
-        T: num::traits::One + num::traits::Zero + Copy + Add + WrappingSub,
-    {
-        pub fn neighbors(self) -> [Self; 4] {
-            [
-                self + Point::new([T::one(), T::zero()]),
-                self + Point::new([T::zero(), T::one()]),
-                self.wrapping_sub(&Point::new([T::one(), T::zero()])),
-                self.wrapping_sub(&Point::new([T::zero(), T::one()])),
-            ]
-        }
-    }
-
-    #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-    pub struct GenericPoint<T, const N: usize> {
-        data: [T; N],
-    }
-
-    impl<T, const N: usize> GenericPoint<T, N> {
-        pub fn new(data: [T; N]) -> Self {
-            Self { data }
-        }
-    }
-
-    impl<T, const N: usize> GenericPoint<T, N>
-    where
-        T: WrappingAdd + Copy,
-    {
-        pub fn wrapping_add(self, rhs: &Self) -> Self {
-            Self::new(array::from_fn(|i| self.data[i].wrapping_add(&rhs.data[i])))
-        }
-    }
-
-    impl<T, const N: usize> GenericPoint<T, N>
-    where
-        T: WrappingSub + Copy,
-    {
-        pub fn wrapping_sub(self, rhs: &Self) -> Self {
-            Self::new(array::from_fn(|i| self.data[i].wrapping_sub(&rhs.data[i])))
-        }
-    }
-
-    impl<T, const N: usize, Idx> Index<Idx> for GenericPoint<T, N>
-    where
-        Idx: SliceIndex<[T], Output = T>,
-    {
-        type Output = T;
-
-        fn index(&self, index: Idx) -> &Self::Output {
-            self.data.index(index)
-        }
-    }
-
-    impl<T: Default, const N: usize> Default for GenericPoint<T, N> {
-        fn default() -> Self {
-            Self {
-                data: std::array::from_fn(|_| T::default()),
-            }
-        }
-    }
-
-    impl<T, const N: usize> Add for GenericPoint<T, N>
-    where
-        T: Add<Output = T> + Copy,
-    {
-        type Output = Self;
-
-        fn add(self, rhs: Self) -> Self::Output {
-            Self::new(array::from_fn(|i| self.data[i] + rhs.data[i]))
-        }
-    }
-
-    impl<T, const N: usize> AddAssign for GenericPoint<T, N>
-    where
-        T: AddAssign + Copy,
-    {
-        fn add_assign(&mut self, rhs: Self) {
-            for i in 0..self.data.len() {
-                self.data[i] += rhs.data[i];
-            }
-        }
-    }
-
-    impl<T, const N: usize> Sub for GenericPoint<T, N>
-    where
-        T: Sub<Output = T> + Copy,
-    {
-        type Output = Self;
-
-        fn sub(self, rhs: Self) -> Self::Output {
-            Self::new(array::from_fn(|i| self.data[i] - rhs.data[i]))
-        }
-    }
-
-    impl<T, const N: usize> Mul<T> for GenericPoint<T, N>
-    where
-        T: Mul<Output = T> + Copy,
-    {
-        type Output = Self;
-
-        fn mul(self, rhs: T) -> Self::Output {
-            Self::new(array::from_fn(|i| self.data[i] * rhs))
-        }
-    }
 }
