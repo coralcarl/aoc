@@ -1,6 +1,9 @@
 #![allow(unused_variables)]
 
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::Index,
+};
 
 struct Maze {
     walls: HashSet<(usize, usize)>,
@@ -47,30 +50,45 @@ fn parse(input: &str) -> Maze {
     }
 }
 
+use Direction::*;
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
 enum Direction {
-    North,
-    East,
-    South,
-    West,
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+
+impl<T> Index<Direction> for Vec<T> {
+    type Output = usize;
+
+    fn index(&self, direction: Direction) -> &Self::Output {
+        match direction {
+            Up => &0,
+            Right => &1,
+            Down => &2,
+            Left => &3,
+        }
+    }
 }
 
 impl Direction {
     fn cw(&self) -> Direction {
         match self {
-            Direction::North => Direction::East,
-            Direction::East => Direction::South,
-            Direction::South => Direction::West,
-            Direction::West => Direction::North,
+            Up => Right,
+            Right => Down,
+            Down => Left,
+            Left => Up,
         }
     }
 
     fn ccw(&self) -> Direction {
         match self {
-            Direction::North => Direction::West,
-            Direction::West => Direction::South,
-            Direction::South => Direction::East,
-            Direction::East => Direction::North,
+            Up => Left,
+            Left => Down,
+            Down => Right,
+            Right => Up,
         }
     }
 
@@ -78,10 +96,10 @@ impl Direction {
         if self == other {
             return 0;
         }
-        if *self == Direction::North && *other == Direction::South
-            || *self == Direction::South && *other == Direction::North
-            || *self == Direction::West && *other == Direction::East
-            || *self == Direction::East && *other == Direction::West
+        if *self == Up && *other == Down
+            || *self == Down && *other == Up
+            || *self == Left && *other == Right
+            || *self == Right && *other == Left
         {
             return 2;
         }
@@ -89,12 +107,7 @@ impl Direction {
     }
 
     fn all() -> [Direction; 4] {
-        [
-            Direction::North,
-            Direction::East,
-            Direction::South,
-            Direction::West,
-        ]
+        [Up, Right, Down, Left]
     }
 }
 
@@ -116,7 +129,7 @@ fn find_min_path(
         }
     }
     // check if already visted rotation with better score
-    for dir in Direction::all() {
+    for dir in all() {
         if dir == direction {
             continue;
         }
@@ -133,10 +146,10 @@ fn find_min_path(
         .or_insert(score);
 
     let next_position = match direction {
-        Direction::North => (position.0, position.1 - 1),
-        Direction::South => (position.0, position.1 + 1),
-        Direction::West => (position.0 - 1, position.1),
-        Direction::East => (position.0 + 1, position.1),
+        Up => (position.0, position.1 - 1),
+        Down => (position.0, position.1 + 1),
+        Left => (position.0 - 1, position.1),
+        Right => (position.0 + 1, position.1),
     };
 
     [
@@ -157,13 +170,13 @@ fn find_min_path(
     .unwrap()
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let maze = parse(&input);
-    find_min_path(&maze, maze.start, 0, Direction::East, &mut HashMap::new())
+    find_min_path(&maze, maze.start, 0, Right, &mut HashMap::new()).to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
-    0
+pub fn part2(input: &str) -> String {
+    "todo".to_string()
 }
 
 #[cfg(test)]
@@ -206,12 +219,12 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(&EXAMPLE1), 7036);
-        assert_eq!(part1(&EXAMPLE2), 11048);
+        assert_eq!(part1(&EXAMPLE1), "7036");
+        assert_eq!(part1(&EXAMPLE2), "11048");
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(&EXAMPLE1), 0);
+        assert_eq!(part2(&EXAMPLE1), "0");
     }
 }

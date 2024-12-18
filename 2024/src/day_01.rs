@@ -14,7 +14,7 @@ fn parse(input: &str) -> (Vec<u64>, Vec<u64>) {
     lists
 }
 
-pub fn part1(input: &str) -> u64{
+pub fn part1(input: &str) -> String{
     let mut lists = parse(&input);
     lists.0.sort();
     lists.1.sort();
@@ -25,10 +25,10 @@ pub fn part1(input: &str) -> u64{
         distance += x.abs_diff(*y);
     }
 
-    distance
+    distance.to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> String {
     let lists = parse(&input);
 
     let mut frequency_table: HashMap<u64, u64> = HashMap::new();
@@ -43,7 +43,7 @@ pub fn part2(input: &str) -> u64 {
         similarity += num * *frequency_table.entry(num).or_default();
     }
 
-    similarity
+    similarity.to_string()
 }
 
 #[cfg(test)]
@@ -58,7 +58,7 @@ mod tests {
 1   3
 3   9
 3   3";
-        assert_eq!(part1(&input), 11);
-        assert_eq!(part2(&input), 31);
+        assert_eq!(part1(&input), "11");
+        assert_eq!(part2(&input), "31");
     }
 }

@@ -23,7 +23,7 @@ fn map_region(
     region
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let mut garden: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
 
     let mut regions = Vec::new();
@@ -51,11 +51,11 @@ pub fn part1(input: &str) -> u64 {
         price += perimiter * region.len();
     }
 
-    price as u64
+    price.to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
-    0
+pub fn part2(input: &str) -> String {
+    0.to_string()
 }
 
 #[cfg(test)]
@@ -68,7 +68,7 @@ mod tests {
 BBCD
 BBCC
 EEEC";
-        assert_eq!(part1(&input), 140);
-        assert_eq!(part2(&input), 0);
+        assert_eq!(part1(&input), "140");
+        assert_eq!(part2(&input), "0");
     }
 }

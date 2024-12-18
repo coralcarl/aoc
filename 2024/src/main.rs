@@ -21,7 +21,7 @@ mod day_15;
 mod day_16;
 
 fn main() {
-    let days: Vec<(fn(&str) -> u64, fn(&str) -> u64)> = vec![
+    let days: Vec<(fn(&str) -> String, fn(&str) -> String)> = vec![
         (day_01::part1, day_01::part2),
         (day_02::part1, day_02::part2),
         (day_03::part1, day_03::part2),

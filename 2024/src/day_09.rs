@@ -1,6 +1,6 @@
 #![allow(unused_variables)]
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let files = input
         .trim()
         .chars()
@@ -49,10 +49,10 @@ pub fn part1(input: &str) -> u64 {
         checksum += id * blk_back as u64;
     }
 
-    checksum
+    checksum.to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> String {
     let mut files = Vec::new();
     let mut spaces = Vec::new();
 
@@ -98,7 +98,7 @@ pub fn part2(input: &str) -> u64 {
         }
     }
 
-    checksum
+    checksum.to_string()
 }
 
 #[cfg(test)]
@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn example() {
         let input = "2333133121414131402";
-        assert_eq!(part1(&input), 1928);
-        assert_eq!(part2(&input), 2858);
+        assert_eq!(part1(&input), "1928");
+        assert_eq!(part2(&input), "2858");
     }
 }

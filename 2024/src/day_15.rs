@@ -87,14 +87,19 @@ fn gps(x: u64, y: u64) -> u64 {
     100 * y + x
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let (mut warehouse, movements) = parse(&input);
     move_robot(&mut warehouse, &movements);
-    warehouse.boxes.iter().map(|b| gps(b.0, b.1)).sum()
+    warehouse
+        .boxes
+        .iter()
+        .map(|b| gps(b.0, b.1))
+        .sum::<u64>()
+        .to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
-    0
+pub fn part2(input: &str) -> String {
+    0.to_string()
 }
 
 #[cfg(test)]
@@ -136,12 +141,12 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^";
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(&EXAMPLE1), 2028);
-        assert_eq!(part1(&EXAMPLE2), 10092);
+        assert_eq!(part1(&EXAMPLE1), "2028");
+        assert_eq!(part1(&EXAMPLE2), "10092");
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(&EXAMPLE1), 0);
+        assert_eq!(part2(&EXAMPLE1), "0");
     }
 }

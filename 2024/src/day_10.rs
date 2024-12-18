@@ -54,7 +54,7 @@ fn rating(grid: &Vec<Vec<u8>>, x: usize, y: usize) -> u64 {
     .sum::<u64>()
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let grid = parse(&input);
     grid.iter()
         .enumerate()
@@ -70,10 +70,10 @@ pub fn part1(input: &str) -> u64 {
                 })
                 .sum::<u64>()
         })
-        .sum::<u64>()
+        .sum::<u64>().to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> String {
     let grid = parse(&input);
     grid.iter()
         .enumerate()
@@ -89,7 +89,7 @@ pub fn part2(input: &str) -> u64 {
                 })
                 .sum::<u64>()
         })
-        .sum::<u64>()
+        .sum::<u64>().to_string()
 }
 
 #[cfg(test)]
@@ -106,7 +106,7 @@ mod tests {
 32019012
 01329801
 10456732";
-        assert_eq!(part1(&input), 36);
-        assert_eq!(part2(&input), 81);
+        assert_eq!(part1(&input), "36");
+        assert_eq!(part2(&input), "81");
     }
 }

@@ -22,7 +22,7 @@ fn blink(mut stones: Vec<u64>, count: usize) -> Vec<u64> {
     stones
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     blink(
         input
             .trim()
@@ -31,11 +31,13 @@ pub fn part1(input: &str) -> u64 {
             .collect(),
         25,
     )
-    .len() as u64
+    .len()
+    .to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
-    return 0;
+#[allow(unreachable_code)]
+pub fn part2(input: &str) -> String {
+    return "disabled".to_string();
     blink(
         input
             .trim()
@@ -44,7 +46,8 @@ pub fn part2(input: &str) -> u64 {
             .collect(),
         75,
     )
-    .len() as u64
+    .len()
+    .to_string()
 }
 
 #[cfg(test)]
@@ -54,7 +57,7 @@ mod tests {
     #[test]
     fn example() {
         let input = "125 17";
-        assert_eq!(part1(&input), 55312);
-        assert_eq!(part2(&input), 0);
+        assert_eq!(part1(&input), "55312");
+        assert_eq!(part2(&input), "0");
     }
 }

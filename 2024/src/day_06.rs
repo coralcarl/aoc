@@ -124,7 +124,7 @@ fn parse(input: &str) -> Lab {
     }
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let Lab {
         mut guard,
         width,
@@ -140,15 +140,16 @@ pub fn part1(input: &str) -> u64 {
             || guard.position.x == width as i32
             || guard.position.y == height as i32
         {
-            return visited.len() as u64;
+            return visited.len().to_string();
         }
 
         visited.insert(guard.position);
     }
 }
 
-pub fn part2(input: &str) -> u64 {
-    return 0;
+#[allow(unreachable_code)]
+pub fn part2(input: &str) -> String {
+    return "disabled".to_string();
     let lab = parse(&input);
     let Lab {
         mut guard,
@@ -201,7 +202,7 @@ pub fn part2(input: &str) -> u64 {
         }
     }
 
-    valid
+    valid.to_string()
 }
 
 #[cfg(test)]
@@ -220,7 +221,7 @@ mod tests {
 ........#.
 #.........
 ......#...";
-        assert_eq!(part1(&input), 41);
-        assert_eq!(part2(&input), 6);
+        assert_eq!(part1(&input), "41");
+        assert_eq!(part2(&input), "6");
     }
 }

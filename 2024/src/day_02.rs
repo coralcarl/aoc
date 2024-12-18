@@ -11,7 +11,7 @@ fn bad_level(levels: &Vec<i16>) -> Option<usize> {
     None
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let mut safe = 0;
 
     for row in input.trim().split('\n') {
@@ -23,10 +23,10 @@ pub fn part1(input: &str) -> u64 {
             safe += 1;
         }
     }
-    safe
+    safe.to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> String {
     let mut safe = 0;
 
     for row in input.trim().split('\n') {
@@ -54,7 +54,7 @@ pub fn part2(input: &str) -> u64 {
             None => safe += 1,
         }
     }
-    safe
+    safe.to_string()
 }
 
 #[cfg(test)]
@@ -69,7 +69,7 @@ mod tests {
 1 3 2 4 5
 8 6 4 4 1
 1 3 6 7 9";
-        assert_eq!(part1(&input), 2);
-        assert_eq!(part2(&input), 4);
+        assert_eq!(part1(&input), "2");
+        assert_eq!(part2(&input), "4");
     }
 }

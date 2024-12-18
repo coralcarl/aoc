@@ -101,16 +101,17 @@ fn chinese_remainder(a: &[i64], n: &[i64]) -> Option<i64> {
 const WIDTH: usize = 101;
 const HEIGHT: usize = 103;
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let mut robots = parse(&input);
     move_robots(&mut robots, 100, WIDTH, HEIGHT);
     quadrant_spread(&robots, WIDTH, HEIGHT)
         .as_flattened()
         .iter()
-        .product::<usize>() as u64
+        .product::<usize>()
+        .to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> String {
     let mut robots = parse(&input);
 
     let mut x_variance = Vec::new();
@@ -141,8 +142,7 @@ pub fn part2(input: &str) -> u64 {
 
     chinese_remainder(&[x_offset as i64, y_offset as i64], &[101, 103])
         .unwrap()
-        .try_into()
-        .unwrap()
+        .to_string()
 }
 
 #[cfg(test)]

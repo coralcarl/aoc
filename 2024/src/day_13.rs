@@ -52,14 +52,15 @@ fn parse(input: &str) -> Vec<ClawMachine> {
     arcade
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     parse(&input)
         .iter()
         .map(|arcade| arcade.fewest_tokens_per_prize())
-        .sum()
+        .sum::<u64>()
+        .to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> String {
     parse(&input)
         .iter_mut()
         .map(|arcade| {
@@ -67,7 +68,8 @@ pub fn part2(input: &str) -> u64 {
             arcade.py += 10000000000000;
             arcade.fewest_tokens_per_prize()
         })
-        .sum()
+        .sum::<u64>()
+        .to_string()
 }
 
 #[cfg(test)]
@@ -92,11 +94,11 @@ Prize: X=18641, Y=10279";
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(&EXAMPLE1), 480);
+        assert_eq!(part1(&EXAMPLE1), "480");
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(&EXAMPLE1), 0);
+        assert_eq!(part2(&EXAMPLE1), "0");
     }
 }

@@ -38,7 +38,7 @@ fn parse(input: &str) -> City {
     }
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> String {
     let City {
         frequencies,
         width,
@@ -62,10 +62,11 @@ pub fn part1(input: &str) -> u64 {
     antinodes
         .iter()
         .filter(|(x, y)| (*x as usize) < width && (*y as usize) < height)
-        .count() as u64
+        .count()
+        .to_string()
 }
 
-pub fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> String {
     let City {
         frequencies,
         width,
@@ -102,7 +103,7 @@ pub fn part2(input: &str) -> u64 {
         }
     }
 
-    antinodes.len() as u64
+    antinodes.len().to_string()
 }
 
 #[cfg(test)]
@@ -123,7 +124,7 @@ mod tests {
 .........A..
 ............
 ............";
-        assert_eq!(part1(&input), 14);
-        assert_eq!(part2(&input), 34);
+        assert_eq!(part1(&input), "14");
+        assert_eq!(part2(&input), "34");
     }
 }
