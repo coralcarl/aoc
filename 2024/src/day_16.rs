@@ -1,12 +1,7 @@
 #![allow(unused_variables)]
 
-use std::{
-    collections::{HashMap, HashSet},
-    ops::Index,
-};
-
 struct Maze {
-    walls: HashSet<(usize, usize)>,
+    walls: Vec<Vec<bool>>,
     start: (usize, usize),
     end: (usize, usize),
     height: usize,
@@ -14,11 +9,11 @@ struct Maze {
 }
 
 fn parse(input: &str) -> Maze {
-    let mut walls = HashSet::new();
     let mut start = (0, 0);
     let mut end = (0, 0);
     let width = input.find('\n').unwrap() - 2;
     let height = input.len() / (width + 2) - 2;
+    let mut walls = vec![vec![false; height]; width];
 
     let mut x = 0;
     let mut y = 0;
@@ -29,10 +24,10 @@ fn parse(input: &str) -> Maze {
                 y += 1;
             }
             '#' if x > 0 && y > 0 && x <= width && y <= height => {
-                walls.insert((x, y));
+                walls[x - 1][y - 1] = true;
             }
-            'S' => start = (x, y),
-            'E' => end = (x, y),
+            'S' => start = (x - 1, y - 1),
+            'E' => end = (x - 1, y - 1),
             '#' | '.' => (),
             _ => panic!("unknown character '{c}'"),
         }
@@ -50,117 +45,52 @@ fn parse(input: &str) -> Maze {
     }
 }
 
-use Direction::*;
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
-enum Direction {
-    Up,
-    Right,
-    Down,
-    Left,
-}
-
-
-impl<T> Index<Direction> for Vec<T> {
-    type Output = usize;
-
-    fn index(&self, direction: Direction) -> &Self::Output {
-        match direction {
-            Up => &0,
-            Right => &1,
-            Down => &2,
-            Left => &3,
-        }
-    }
-}
-
-impl Direction {
-    fn cw(&self) -> Direction {
-        match self {
-            Up => Right,
-            Right => Down,
-            Down => Left,
-            Left => Up,
-        }
-    }
-
-    fn ccw(&self) -> Direction {
-        match self {
-            Up => Left,
-            Left => Down,
-            Down => Right,
-            Right => Up,
-        }
-    }
-
-    fn required_rotations(&self, other: &Self) -> u64 {
-        if self == other {
-            return 0;
-        }
-        if *self == Up && *other == Down
-            || *self == Down && *other == Up
-            || *self == Left && *other == Right
-            || *self == Right && *other == Left
-        {
-            return 2;
-        }
-        1
-    }
-
-    fn all() -> [Direction; 4] {
-        [Up, Right, Down, Left]
-    }
-}
-
 fn find_min_path(
     maze: &Maze,
     position: (usize, usize),
     score: u64,
-    direction: Direction,
-    done: &mut HashMap<((usize, usize), Direction), u64>,
+    direction: usize,
+    done: &mut Vec<Vec<Vec<u64>>>,
 ) -> u64 {
+    if done.is_empty() {
+        done.extend(vec![
+            vec![vec![u64::MAX - 4000; maze.height]; maze.width];
+            4
+        ]);
+    }
+
     if position == maze.end {
         return score;
     }
 
     // check if already visited with better score
-    if let Some(best_score) = done.get(&(position, direction)) {
-        if score >= *best_score {
+    if score >= done[direction][position.0][position.1] {
+        return u64::MAX;
+    }
+    // check if already visted rotation with better score
+    for d in 1..4 {
+        if score > done[(direction + d) % 4][position.0][position.1] + d as u64 % 2 * 1000 {
             return u64::MAX;
         }
     }
-    // check if already visted rotation with better score
-    for dir in all() {
-        if dir == direction {
-            continue;
-        }
-        if let Some(best_score) = done.get(&(position, dir)) {
-            if score > *best_score + direction.required_rotations(&dir) * 1000 {
-                return u64::MAX;
-            }
-        }
-    }
 
-    // update visited score
-    done.entry((position, direction))
-        .and_modify(|prev_score| *prev_score = score)
-        .or_insert(score);
+    done[direction][position.0][position.1] = score;
 
-    let next_position = match direction {
-        Up => (position.0, position.1 - 1),
-        Down => (position.0, position.1 + 1),
-        Left => (position.0 - 1, position.1),
-        Right => (position.0 + 1, position.1),
-    };
+    let next_position = [
+        (position.0 + 1, position.1),
+        (position.0, position.1 + 1),
+        (position.0.wrapping_sub(1), position.1),
+        (position.0, position.1.wrapping_sub(1)),
+    ];
 
     [
-        (next_position, direction, score + 1),
-        (position, direction.cw(), score + 1000),
-        (position, direction.ccw(), score + 1000),
+        (next_position[direction], direction, score + 1),
+        (position, (direction + 1) % 4, score + 1000),
+        (position, (direction + 3) % 4, score + 1000),
     ]
     .into_iter()
     .map(|(p, d, s)| {
-        if p.0 == 0 || p.1 == 0 || p.0 > maze.width || p.1 > maze.height || maze.walls.contains(&p)
-        {
+        if p.0 >= maze.width || p.1 >= maze.height || maze.walls[position.0][position.1] {
             return u64::MAX;
         }
 
@@ -172,7 +102,7 @@ fn find_min_path(
 
 pub fn part1(input: &str) -> String {
     let maze = parse(&input);
-    find_min_path(&maze, maze.start, 0, Right, &mut HashMap::new()).to_string()
+    find_min_path(&maze, maze.start, 0, 0, &mut Vec::new()).to_string()
 }
 
 pub fn part2(input: &str) -> String {
@@ -225,6 +155,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(&EXAMPLE1), "0");
+        assert_eq!(part2(&EXAMPLE1), "todo");
     }
 }
