@@ -1,4 +1,5 @@
 use std::{
+    env,
     path::PathBuf,
     time::{Duration, Instant},
 };
@@ -19,9 +20,10 @@ mod day_13;
 mod day_14;
 mod day_15;
 mod day_16;
+mod day_17;
 
 fn main() {
-    let days: Vec<(fn(&str) -> String, fn(&str) -> String)> = vec![
+    let year_2024: Vec<(fn(&str) -> String, fn(&str) -> String)> = vec![
         (day_01::part1, day_01::part2),
         (day_02::part1, day_02::part2),
         (day_03::part1, day_03::part2),
@@ -38,11 +40,38 @@ fn main() {
         (day_14::part1, day_14::part2),
         (day_15::part1, day_15::part2),
         (day_16::part1, day_16::part2),
+        (day_17::part1, day_17::part2),
     ];
 
-    for (day, (part1, part2)) in days.iter().enumerate() {
+    let mut solutions = Vec::new();
+
+    let args = env::args().skip(1).collect::<Vec<_>>();
+
+    let mut year = None;
+    let mut day = None;
+
+
+    for (arg1, arg2) in args.iter().zip(args.iter().skip(1)) {
+        match arg1.as_str() {
+            "day" => day = Some(arg2.parse::<usize>().unwrap()),
+            "year" => year = Some(arg2.parse::<usize>().unwrap()),
+            _ => panic!("invalid args"),
+        }
+    }
+
+    let day = day.unwrap_or(year_2024.len());
+
+    if year.is_some() {
+        for (day, sol) in year_2024.iter().enumerate() {
+            solutions.push((2024, day + 1, sol));
+        }
+    } else {
+        solutions.push((2024, day, &year_2024[day - 1]));
+    }
+
+    for (_, day, (part1, part2)) in solutions.into_iter() {
         let input_folder: PathBuf = [env!("CARGO_MANIFEST_DIR"), "input"].iter().collect();
-        let input = aoclib::read_input(input_folder, 2024, day + 1);
+        let input = aoclib::read_input(input_folder, 2024, day );
 
         println!("========= Day {:02} =========", day + 1);
         let mut start = Instant::now();
