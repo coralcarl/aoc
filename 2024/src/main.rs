@@ -21,6 +21,7 @@ mod day_14;
 mod day_15;
 mod day_16;
 mod day_17;
+mod day_18;
 
 fn main() {
     let year_2024: Vec<(fn(&str) -> String, fn(&str) -> String)> = vec![
@@ -41,6 +42,7 @@ fn main() {
         (day_15::part1, day_15::part2),
         (day_16::part1, day_16::part2),
         (day_17::part1, day_17::part2),
+        (day_18::part1, day_18::part2),
     ];
 
     let mut solutions = Vec::new();
@@ -73,7 +75,7 @@ fn main() {
         let input_folder: PathBuf = [env!("CARGO_MANIFEST_DIR"), "input"].iter().collect();
         let input = aoclib::read_input(input_folder, 2024, day );
 
-        println!("========= Day {:02} =========", day + 1);
+        println!("========= Day {:02} =========", day);
         let mut start = Instant::now();
         let solution1 = part1(&input);
         let time1 = start.elapsed();
