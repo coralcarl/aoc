@@ -42,8 +42,7 @@ pub fn part1(input: &str) -> String {
     designs
         .into_iter()
         .filter(|design| possible(design, &towels, &mut HashMap::new()) > 0)
-        .collect::<Vec<_>>()
-        .len()
+        .count()
         .to_string()
 }
 
