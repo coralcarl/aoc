@@ -24,6 +24,8 @@ mod day_17;
 mod day_18;
 mod day_19;
 mod day_20;
+mod day_21;
+mod day_22;
 
 fn main() {
     let year_2024: Vec<(fn(&str) -> String, fn(&str) -> String)> = vec![
@@ -47,6 +49,8 @@ fn main() {
         (day_18::part1, day_18::part2),
         (day_19::part1, day_19::part2),
         (day_20::part1, day_20::part2),
+        (day_21::part1, day_21::part2),
+        (day_22::part1, day_22::part2),
     ];
 
     let mut solutions = Vec::new();
@@ -93,7 +97,7 @@ fn main() {
 
 fn readable_duration(d: Duration) -> String {
     if d.as_secs() > 0 {
-        return format!("{:6.2}s ", d.as_secs_f64());
+        return format!("{:3.1}s", d.as_secs_f64());
     } else if d.as_millis() > 0 {
         return format!("{:3}ms", d.as_millis());
     } else {

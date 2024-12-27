@@ -34,8 +34,8 @@ fn find_path(grid: &Grid) -> Vec<(usize, usize)> {
 
 fn find_cheats(path: Vec<(usize, usize)>, threshold: usize, cheat_duration: usize) -> usize {
     let mut cheats = 0;
-    for i in 0..path.len() - 1 {
-        for j in i + 1..path.len() {
+    for i in 0..path.len() - 100 {
+        for j in i + 100..path.len() {
             let dist = path[i].0.abs_diff(path[j].0) + path[i].1.abs_diff(path[j].1);
             if dist <= cheat_duration && (j - i) > dist && (j - i) >= threshold + dist {
                 cheats += 1;
