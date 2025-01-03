@@ -1,5 +1,7 @@
 #![allow(unused_variables)]
 
+use std::collections::HashMap;
+
 fn digit_count(mut num: u64) -> u64 {
     let mut digit_count = 0;
     while num > 0 {
@@ -9,21 +11,37 @@ fn digit_count(mut num: u64) -> u64 {
     digit_count
 }
 
-fn blink(stones: &mut Vec<u64>) {
-    for i in 0..stones.len() {
-        if stones[i] == 0 {
-            stones[i] = 1;
-        } else {
-            let digit_count = digit_count(stones[i]);
-            if digit_count % 2 == 0 {
-                let p = 10_u64.pow(digit_count as u32 / 2);
-                stones.push(stones[i] % p);
-                stones[i] /= p;
-            } else {
-                stones[i] *= 2024;
-            }
-        }
+fn blink(stone: u64, seconds: usize, visited: &mut HashMap<(u64, usize), usize>) -> usize {
+    if seconds == 0 {
+        return 1;
     }
+
+    if let Some(result) = visited.get(&(stone, seconds)) {
+        return *result;
+    }
+
+    let result = if stone == 0 {
+        blink(1, seconds - 1, visited)
+    } else {
+        let digit_count = digit_count(stone);
+        if digit_count % 2 == 0 {
+            let p = 10_u64.pow(digit_count as u32 / 2);
+            blink(stone % p, seconds - 1, visited) + blink(stone / p, seconds - 1, visited)
+        } else {
+            blink(stone * 2024, seconds - 1, visited)
+        }
+    };
+
+    visited.insert((stone, seconds), result);
+    result
+}
+
+fn blink_stones(stones: Vec<u64>, seconds: usize) -> usize {
+    let mut visited = HashMap::new();
+    stones
+        .iter()
+        .map(|&stone| blink(stone, seconds, &mut visited))
+        .sum()
 }
 
 fn parse(input: &str) -> Vec<u64> {
@@ -34,20 +52,12 @@ fn parse(input: &str) -> Vec<u64> {
 }
 
 pub fn part1(input: &str) -> String {
-    let mut stones = parse(input);
-    for _ in 0..25 {
-        blink(&mut stones);
-    }
-    stones.len().to_string()
+    blink_stones(parse(input), 25).to_string()
 }
 
 #[allow(unreachable_code)]
 pub fn part2(input: &str) -> String {
-    let mut stones = parse(input);
-    for _ in 0..75 {
-        blink(&mut stones);
-    }
-    stones.len().to_string()
+    blink_stones(parse(input), 75).to_string()
 }
 
 #[cfg(test)]
@@ -58,6 +68,5 @@ mod tests {
     fn example() {
         let input = "125 17";
         assert_eq!(part1(&input), "55312");
-        assert_eq!(part2(&input), "0");
     }
 }
