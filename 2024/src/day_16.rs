@@ -1,6 +1,6 @@
 #![allow(unused_variables)]
 
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 type Walls = Vec<Vec<bool>>;
 
@@ -121,6 +121,102 @@ fn reverse_path(
     path
 }
 
+fn reverse_paths(
+    visited: &HashMap<State, (HashSet<State>, usize)>,
+    endings: &HashSet<State>,
+) -> Vec<Vec<State>> {
+    let mut paths = Vec::new();
+
+    let mut open = Vec::new();
+    for end in endings {
+        open.push(vec![*end]);
+    }
+    while let Some(mut path) = open.pop() {
+        let current_state = path[path.len() - 1];
+        let parents = &visited[&current_state].0;
+        if parents.is_empty() {
+            path.reverse();
+            paths.push(path);
+        } else {
+            for parent in parents {
+                let mut new_list = path.clone();
+                new_list.push(*parent);
+                open.push(new_list);
+            }
+        }
+    }
+    paths
+}
+
+fn cheapest_paths(maze: Walls) -> Option<(Vec<Vec<State>>, usize)> {
+    let start = State {
+        pos: (1, maze.len() - 2),
+        dir: (1, 0),
+    };
+    let end = (maze[0].len() - 2, 1);
+
+    let mut open = BinaryHeap::new();
+    let mut visited = HashMap::new();
+
+    open.push(PState::new(0, 0, start));
+    visited.insert(start, (HashSet::new(), 0));
+
+    let mut min_cost = None;
+
+    let mut endings = HashSet::new();
+
+    while let Some(PState {
+        estimated_cost,
+        current_cost,
+        state: current,
+    }) = open.pop()
+    {
+        if let Some(min_cost) = min_cost {
+            if current_cost > min_cost {
+                return Some((reverse_paths(&visited, &endings), min_cost));
+            }
+        }
+
+        if current.pos == end {
+            if min_cost.is_none() {
+                min_cost = Some(current_cost);
+            }
+            if current_cost == min_cost.unwrap() {
+                endings.insert(current);
+            }
+            continue;
+        }
+
+        if current_cost > visited.get(&current).unwrap().1 {
+            continue;
+        }
+
+        for (successor, move_cost) in neighbors(&current, &maze) {
+            let new_cost = current_cost + move_cost;
+
+            match visited.entry(successor) {
+                std::collections::hash_map::Entry::Vacant(e) => {
+                    e.insert((HashSet::from_iter([current]), new_cost));
+                }
+                std::collections::hash_map::Entry::Occupied(mut e) => {
+                    if e.get().1 > new_cost {
+                        e.insert((HashSet::from_iter([current]), new_cost));
+                    } else if e.get().1 == new_cost {
+                        e.get_mut().0.insert(current);
+                        continue;
+                    }
+                }
+            }
+
+            let h_cost = heuristic(&successor, end);
+
+            open.push(PState::new(new_cost + h_cost, new_cost, successor));
+        }
+    }
+
+    None
+}
+
 fn cheapest_path(maze: Walls) -> Option<(Vec<(usize, usize)>, usize)> {
     let start = State {
         pos: (1, maze.len() - 2),
@@ -128,8 +224,8 @@ fn cheapest_path(maze: Walls) -> Option<(Vec<(usize, usize)>, usize)> {
     };
     let end = (maze[0].len() - 2, 1);
 
-    let mut open: BinaryHeap<PState> = BinaryHeap::new();
-    let mut visited: HashMap<State, (Option<State>, usize)> = HashMap::new();
+    let mut open = BinaryHeap::new();
+    let mut visited = HashMap::new();
 
     open.push(PState::new(0, 0, start));
     visited.insert(start, (None, 0));
@@ -174,12 +270,17 @@ fn cheapest_path(maze: Walls) -> Option<(Vec<(usize, usize)>, usize)> {
 }
 
 pub fn part1(input: &str) -> String {
-    let (path, cost) = cheapest_path(parse(&input)).unwrap();
+    let (_, cost) = cheapest_path(parse(&input)).unwrap();
     cost.to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    "todo".to_string()
+    let (paths, cost) = cheapest_paths(parse(&input)).unwrap();
+    let mut s: HashSet<(usize, usize)> = HashSet::new();
+    for path in paths {
+        s.extend(path.into_iter().map(|state| state.pos));
+    }
+    s.len().to_string()
 }
 
 #[cfg(test)]
@@ -228,6 +329,7 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(&EXAMPLE1), "todo");
+        assert_eq!(part2(&EXAMPLE1), "45");
+        assert_eq!(part2(&EXAMPLE2), "64");
     }
 }
