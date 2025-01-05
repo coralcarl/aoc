@@ -1,10 +1,9 @@
 #![allow(unused_variables)]
 
 pub fn part1(input: &str) -> String {
-    let files = input
-        .trim()
-        .chars()
-        .map(|c| c.to_digit(10).unwrap() as u64)
+    let files = input[..input.len() - 1]
+        .bytes()
+        .map(|c| c as u64 - 48)
         .enumerate()
         .map(|(i, v)| (i / 2, v))
         .collect::<Vec<(usize, u64)>>();
@@ -53,14 +52,14 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    let mut files = Vec::new();
-    let mut spaces = Vec::new();
+    let mut files = Vec::with_capacity(input.len());
+    let mut spaces = Vec::with_capacity(input.len());
 
     let mut blk_offset = 0;
 
     let mut even = true;
-    for (blk_id, c) in input.trim().chars().enumerate() {
-        let blk_size = c.to_digit(10).unwrap() as u64;
+    for (blk_id, c) in input[..input.len() - 1].bytes().enumerate() {
+        let blk_size = c as u64 - 48;
         if even {
             files.push((blk_offset, blk_size, blk_id / 2));
         } else {
