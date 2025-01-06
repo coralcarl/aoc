@@ -14,7 +14,7 @@ fn parse(input: &str) -> (Vec<u64>, Vec<u64>) {
     lists
 }
 
-pub fn part1(input: &str) -> String{
+pub fn part1(input: &str) -> String {
     let mut lists = parse(&input);
     lists.0.sort();
     lists.1.sort();
