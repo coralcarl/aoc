@@ -30,8 +30,11 @@ mod day_23;
 mod day_24;
 mod day_25;
 
+type Solution = (fn(&str) -> String, fn(&str) -> String);
+
 fn main() {
-    let year_2024: Vec<(fn(&str) -> String, fn(&str) -> String)> = vec![
+    const YEAR: usize = 2024;
+    let solutions: Vec<Solution> = vec![
         (day_01::part1, day_01::part2),
         (day_02::part1, day_02::part2),
         (day_03::part1, day_03::part2),
@@ -59,35 +62,23 @@ fn main() {
         (day_25::part1, day_25::part2),
     ];
 
-    let mut solutions = Vec::new();
-
-    let args = env::args().skip(1).collect::<Vec<_>>();
-
-    let mut year = None;
-    let mut day = None;
-
-
-    for (arg1, arg2) in args.iter().zip(args.iter().skip(1)) {
-        match arg1.as_str() {
-            "day" => day = Some(arg2.parse::<usize>().unwrap()),
-            "year" => year = Some(arg2.parse::<usize>().unwrap()),
-            _ => panic!("invalid args"),
+    let to_run = match env::args().skip(1).next() {
+        Some(s) if s.as_str() == "all" => (0..solutions.len())
+            .map(|i| (i + 1, solutions[i]))
+            .collect::<Vec<_>>(),
+        Some(s) if s.parse::<usize>().is_ok() => {
+            vec![(
+                s.parse().unwrap(),
+                solutions[s.parse::<usize>().unwrap() - 1],
+            )]
         }
-    }
+        None => vec![(solutions.len(), *solutions.last().unwrap())],
+        _ => panic!("invalid args"),
+    };
 
-    let day = day.unwrap_or(year_2024.len());
-
-    if year.is_some() {
-        for (day, sol) in year_2024.iter().enumerate() {
-            solutions.push((2024, day + 1, sol));
-        }
-    } else {
-        solutions.push((2024, day, &year_2024[day - 1]));
-    }
-
-    for (_, day, (part1, part2)) in solutions.into_iter() {
+    for (day, (part1, part2)) in to_run.into_iter() {
         let input_folder: PathBuf = [env!("CARGO_MANIFEST_DIR"), "input"].iter().collect();
-        let input = aoclib::read_input(input_folder, 2024, day );
+        let input = aoclib::read_input(input_folder, YEAR, day);
 
         println!("========= Day {:02} =========", day);
         let mut start = Instant::now();
