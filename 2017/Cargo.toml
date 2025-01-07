@@ -1,0 +1,14 @@
+[package]
+name = "year_2017"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aoclib = { path = "../aoclib" }
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "aoc_benchmark"
+harness = false

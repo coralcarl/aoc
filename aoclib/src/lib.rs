@@ -41,7 +41,7 @@ fn download_input(year: usize, day: usize) -> String {
     };
 
     let client = Client::new();
-    let url = format!("https://adventofcode.com/{year}/day/{day:02}/input");
+    let url = format!("https://adventofcode.com/{year}/day/{day}/input");
     let mut response = client
         .get(url)
         .header("Cookie", format!("session={}", token.trim()))
