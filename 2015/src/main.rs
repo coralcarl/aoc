@@ -5,7 +5,7 @@ use std::{
 };
 
 mod day_01;
-// mod day_02;
+mod day_02;
 // mod day_03;
 // mod day_04;
 // mod day_05;
@@ -36,7 +36,7 @@ fn main() {
     const YEAR: usize = 2015;
     let solutions: Vec<Solution> = vec![
         (day_01::part1, day_01::part2),
-        // (day_02::part1, day_02::part2),
+        (day_02::part1, day_02::part2),
         // (day_03::part1, day_03::part2),
         // (day_04::part1, day_04::part2),
         // (day_05::part1, day_05::part2),
