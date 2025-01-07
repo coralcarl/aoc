@@ -22,7 +22,7 @@ pub fn part2(input: &str) -> String {
                 .map(|num| num.parse::<usize>().unwrap())
                 .collect::<Vec<_>>();
             nums.sort();
-            (nums[0]+ nums[1] ) * 2 + nums.iter().product::<usize>()
+            (nums[0] + nums[1]) * 2 + nums.iter().product::<usize>()
         })
         .sum::<usize>()
         .to_string()
