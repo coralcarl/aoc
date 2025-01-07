@@ -28,6 +28,7 @@ mod day_21;
 mod day_22;
 mod day_23;
 mod day_24;
+mod day_25;
 
 fn main() {
     let year_2024: Vec<(fn(&str) -> String, fn(&str) -> String)> = vec![
@@ -55,6 +56,7 @@ fn main() {
         (day_22::part1, day_22::part2),
         (day_23::part1, day_23::part2),
         (day_24::part1, day_24::part2),
+        (day_25::part1, day_25::part2),
     ];
 
     let mut solutions = Vec::new();
