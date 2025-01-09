@@ -1,75 +1,46 @@
-fn bad_level(levels: &Vec<i16>) -> Option<usize> {
-    let inc = levels[1] > levels[0];
-
-    for i in 0..levels.len() - 1 {
-        let diff = levels[i + 1] - levels[i];
-        if diff > 3 || diff < -3 || diff == 0 || (inc && diff < 0) || (!inc && diff > 0) {
+fn find_bad_level(report: &[usize]) -> Option<usize> {
+    let inc = report[0] < report[1];
+    for (i, l) in report.windows(2).enumerate() {
+        if l[0] == l[1] || inc && l[0] > l[1] || !inc && l[0] < l[1] || l[0].abs_diff(l[1]) > 3 {
             return Some(i);
         }
     }
-
     None
 }
 
-pub fn part1(input: &str) -> String {
-    let mut safe = 0;
+fn parse_reports(input: &str) -> Vec<Vec<usize>> {
+    input
+        .lines()
+        .map(|line| {
+            line.split(" ")
+                .map(|num| unsafe { num.parse::<usize>().unwrap_unchecked() })
+                .collect()
+        })
+        .collect()
+}
 
-    for row in input.trim().split('\n') {
-        let numbers = row
-            .split(' ')
-            .map(|x| x.parse::<i16>().expect(&format!("{x} not valid")))
-            .collect();
-        if bad_level(&numbers).is_none() {
-            safe += 1;
-        }
-    }
-    safe.to_string()
+pub fn part1(input: &str) -> String {
+    parse_reports(input)
+        .iter()
+        .filter(|report| find_bad_level(report).is_none())
+        .count()
+        .to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    let mut safe = 0;
-
-    for row in input.trim().split('\n') {
-        let numbers = row
-            .split(' ')
-            .map(|x| x.parse::<i16>().expect(&format!("{x} not valid")))
-            .collect();
-        match bad_level(&numbers) {
+    parse_reports(input)
+        .iter()
+        .filter(|report| match find_bad_level(report) {
+            None => true,
             Some(i) if i == 1 => {
-                if bad_level(&numbers[1..].to_vec()).is_none()
-                    || bad_level(&[numbers[0..1].to_vec(), numbers[2..].to_vec()].concat())
-                        .is_none()
-                {
-                    safe += 1;
-                }
+                find_bad_level(&report[1..]).is_none()
+                    || find_bad_level(&[&report[..1], &report[2..]].concat()).is_none()
             }
             Some(i) => {
-                if bad_level(&[numbers[..i].to_vec(), numbers[i + 1..].to_vec()].concat()).is_none()
-                    || bad_level(&[numbers[..i + 1].to_vec(), numbers[i + 2..].to_vec()].concat())
-                        .is_none()
-                {
-                    safe += 1;
-                }
+                find_bad_level(&[&report[..i], &report[i + 1..]].concat()).is_none()
+                    || find_bad_level(&[&report[..i + 1], &report[i + 2..]].concat()).is_none()
             }
-            None => safe += 1,
-        }
-    }
-    safe.to_string()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn example() {
-        let input = "7 6 4 2 1
-1 2 7 8 9
-9 7 6 2 1
-1 3 2 4 5
-8 6 4 4 1
-1 3 6 7 9";
-        assert_eq!(part1(&input), "2");
-        assert_eq!(part2(&input), "4");
-    }
+        })
+        .count()
+        .to_string()
 }

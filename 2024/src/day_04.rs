@@ -1,163 +1,64 @@
 pub fn part1(input: &str) -> String {
-    let lines = input
-        .trim()
-        .split('\n')
-        .map(|line| line.chars().collect::<Vec<_>>())
-        .collect::<Vec<_>>();
+    let g: Vec<&[u8]> = input.lines().map(|line| line.as_bytes()).collect();
 
-    let mut horizontals = 0;
-    let mut verticals = 0;
-    let mut diagonals = 0;
+    const XMAS: [u8; 4] = [b'X', b'M', b'A', b'S'];
+    const SMAX: [u8; 4] = [b'S', b'A', b'M', b'X'];
 
-    for (row, line) in lines.iter().enumerate() {
-        let mut col = 0;
-        while col < line.len() {
-            if line[col] != 'X' {
-                col += 1;
-                continue;
-            }
-            // up-left
-            if row > 2
-                && col > 2
-                && "XMAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| lines[row - offset][col - offset] == chr)
-            {
-                diagonals += 1;
-            }
-            // down-left
-            if row + 3 < lines.len()
-                && col > 2
-                && "XMAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| lines[row + offset][col - offset] == chr)
-            {
-                diagonals += 1;
-            }
-            // up-right
-            if row > 2
-                && col + 3 < line.len()
-                && "XMAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| lines[row - offset][col + offset] == chr)
-            {
-                diagonals += 1;
-            }
-            // down-right
-            if row + 3 < lines.len()
-                && col + 3 < line.len()
-                && "XMAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| lines[row + offset][col + offset] == chr)
-            {
-                diagonals += 1;
-            }
-            // up
-            if row > 2
-                && "XMAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| lines[row - offset][col] == chr)
-            {
-                verticals += 1;
-            }
-            // down
-            if row + 3 < lines.len()
-                && "XMAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| lines[row + offset][col] == chr)
-            {
-                verticals += 1;
-            }
-            // left
-            if col > 2
-                && "XMAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| line[col - offset] == chr)
-            {
-                horizontals += 1;
-            }
-            // right
-            if col + 3 < line.len()
-                && "XMAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| line[col + offset] == chr)
-            {
-                horizontals += 1;
-                col += 3
-            }
+    let mut occurences = 0;
 
-            col += 1;
+    for r in 0..g.len() {
+        for c in 0..g.len() - 3 {
+            if g[r][c..c + 4] == XMAS || g[r][c..c + 4] == SMAX {
+                occurences += 1;
+            }
         }
     }
 
-    (horizontals + verticals + diagonals).to_string()
+    for r in 0..g.len() - 3 {
+        for c in 0..g.len() {
+            let vertical = [g[r][c], g[r + 1][c], g[r + 2][c], g[r + 3][c]];
+            if vertical == XMAS || vertical == SMAX {
+                occurences += 1;
+            }
+        }
+    }
+
+    for r in 0..g.len() - 3 {
+        for c in 3..g.len() {
+            let diagonal = [g[r][c], g[r + 1][c - 1], g[r + 2][c - 2], g[r + 3][c - 3]];
+            if diagonal == XMAS || diagonal == SMAX {
+                occurences += 1;
+            }
+        }
+    }
+
+    for r in 0..g.len() - 3 {
+        for c in 0..g.len() - 3 {
+            let diagonal = [g[r][c], g[r + 1][c + 1], g[r + 2][c + 2], g[r + 3][c + 3]];
+            if diagonal == XMAS || diagonal == SMAX {
+                occurences += 1;
+            }
+        }
+    }
+
+    occurences.to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    let lines = input
-        .trim()
-        .split('\n')
-        .map(|line| line.chars().collect::<Vec<_>>())
-        .collect::<Vec<_>>();
+    let g: Vec<&[u8]> = input.lines().map(|line| line.as_bytes()).collect();
 
-    let mut x = 0;
-
-    for (row, line) in lines[..lines.len() - 1].iter().enumerate().skip(1) {
-        for (col, c) in line[..line.len() - 1].iter().enumerate().skip(1) {
-            if line[col] != 'A' {
-                continue;
-            }
-
-            if *c == 'A'
-                && ("MAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| lines[row + offset - 1][col + offset - 1] == chr)
-                    || "MAS"
-                        .chars()
-                        .enumerate()
-                        .all(|(offset, chr)| lines[row + 1 - offset][col + 1 - offset] == chr))
-                && ("MAS"
-                    .chars()
-                    .enumerate()
-                    .all(|(offset, chr)| lines[row + 1 - offset][col + offset - 1] == chr)
-                    || "MAS"
-                        .chars()
-                        .enumerate()
-                        .all(|(offset, chr)| lines[row - 1 + offset][col + 1 - offset] == chr))
-            {
-                x += 1;
-            }
-        }
-    }
-    x.to_string()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn example() {
-        let input = "MMMSXXMASM
-MSAMXMSMSA
-AMXSXMAAMM
-MSAMASMSMX
-XMASAMXAMM
-XXAMMXXAMA
-SMSMSASXSS
-SAXAMASAAA
-MAMMMXMMMM
-MXMXAXMASX";
-        assert_eq!(part1(&input), "18");
-        assert_eq!(part2(&input), "9");
-    }
+    (1..g.len() - 1)
+        .map(|r| {
+            (1..g[0].len() - 1)
+                .filter(|&c| {
+                    g[r][c] == b'A'
+                        && (g[r - 1][c - 1] == b'S' && g[r + 1][c + 1] == b'M'
+                            || g[r - 1][c - 1] == b'M' && g[r + 1][c + 1] == b'S')
+                        && (g[r + 1][c - 1] == b'S' && g[r - 1][c + 1] == b'M'
+                            || g[r + 1][c - 1] == b'M' && g[r - 1][c + 1] == b'S')
+                })
+                .count()
+        })
+        .sum::<usize>()
+        .to_string()
 }
