@@ -1,4 +1,6 @@
-pub fn part1(input: &str) -> String {
+use aoclib::solution::Solution;
+
+pub fn part1(input: &str) -> Solution {
     let g: Vec<&[u8]> = input.lines().map(|line| line.as_bytes()).collect();
 
     const XMAS: [u8; 4] = [b'X', b'M', b'A', b'S'];
@@ -41,24 +43,25 @@ pub fn part1(input: &str) -> String {
         }
     }
 
-    occurences.to_string()
+    Solution::Usize(occurences)
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> Solution {
     let g: Vec<&[u8]> = input.lines().map(|line| line.as_bytes()).collect();
 
-    (1..g.len() - 1)
-        .map(|r| {
-            (1..g[0].len() - 1)
-                .filter(|&c| {
-                    g[r][c] == b'A'
-                        && (g[r - 1][c - 1] == b'S' && g[r + 1][c + 1] == b'M'
-                            || g[r - 1][c - 1] == b'M' && g[r + 1][c + 1] == b'S')
-                        && (g[r + 1][c - 1] == b'S' && g[r - 1][c + 1] == b'M'
-                            || g[r + 1][c - 1] == b'M' && g[r - 1][c + 1] == b'S')
-                })
-                .count()
-        })
-        .sum::<usize>()
-        .to_string()
+    Solution::Usize(
+        (1..g.len() - 1)
+            .map(|r| {
+                (1..g[0].len() - 1)
+                    .filter(|&c| {
+                        g[r][c] == b'A'
+                            && (g[r - 1][c - 1] == b'S' && g[r + 1][c + 1] == b'M'
+                                || g[r - 1][c - 1] == b'M' && g[r + 1][c + 1] == b'S')
+                            && (g[r + 1][c - 1] == b'S' && g[r - 1][c + 1] == b'M'
+                                || g[r + 1][c - 1] == b'M' && g[r - 1][c + 1] == b'S')
+                    })
+                    .count()
+            })
+            .sum::<usize>(),
+    )
 }

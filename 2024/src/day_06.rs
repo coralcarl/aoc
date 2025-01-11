@@ -1,227 +1,108 @@
-#![allow(unused_variables)]
-
 use std::collections::HashSet;
 
-#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+use aoclib::solution::Solution;
 
-impl Point {
-    fn new(x: i32, y: i32) -> Self {
-        Point { x, y }
-    }
-}
+fn parse(input: &str) -> (Vec<Vec<bool>>, (usize, usize)) {
+    let width = input.find('\n').unwrap();
+    let height = input.len() / (width + 1);
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum Direction {
-    North,
-    East,
-    South,
-    West,
-}
+    let mut lines = input.lines();
 
-impl Direction {
-    fn from(symbol: char) -> Direction {
-        match symbol {
-            '^' => Direction::North,
-            '>' => Direction::East,
-            'v' => Direction::South,
-            '<' => Direction::West,
-            _ => panic!("Unknown symbol: {}", symbol.to_string()),
-        }
-    }
-}
+    let mut walls = vec![vec![false; width]; height];
+    let mut guard = (0, 0);
 
-#[derive(Debug, Clone)]
-struct Guard {
-    direction: Direction,
-    position: Point,
-}
-
-impl Guard {
-    fn new(direction: Direction, location: Point) -> Self {
-        Guard {
-            direction,
-            position: location,
+    for (r, line) in lines.enumerate() {
+        for (c, val) in line.bytes().enumerate() {
+            match val {
+                b'#' => walls[r][c] = true,
+                b'^' => guard = (c, r),
+                _ => (),
+            }
         }
     }
 
-    fn move_forward(&mut self, obstacles: &HashSet<Point>) {
-        let new_location = match self.direction {
-            Direction::North => Point::new(self.position.x, self.position.y - 1),
-            Direction::East => Point::new(self.position.x + 1, self.position.y),
-            Direction::South => Point::new(self.position.x, self.position.y + 1),
-            Direction::West => Point::new(self.position.x - 1, self.position.y),
-        };
+    (walls, guard)
+}
 
-        if obstacles.contains(&new_location) {
-            self.turn_right();
+fn pos_idx(pos: (usize, usize)) -> usize {
+    (pos.0 << 16) | pos.1
+}
+
+fn idx_pos(idx: usize) -> (usize, usize) {
+    (idx >> 16, 0xFFFF & idx)
+}
+
+fn posdir_idx(pos: (usize, usize), dir: (isize, isize)) -> usize {
+    (pos_idx(pos) << 16)
+        | match dir {
+            (0, -1) => 0,
+            (1, 0) => 1,
+            (0, 1) => 2,
+            (-1, 0) => 3,
+            _ => unreachable!(),
+        }
+}
+
+fn patrol(mut guard: (usize, usize), walls: &Vec<Vec<bool>>) -> HashSet<usize> {
+    let mut route = HashSet::from_iter([pos_idx(guard)]);
+    let mut dir = (0, -1);
+
+    loop {
+        let next = (
+            guard.0.wrapping_add_signed(dir.0),
+            guard.1.wrapping_add_signed(dir.1),
+        );
+
+        if !(next.0 < walls[0].len() && next.1 < walls.len()) {
+            return route;
+        }
+
+        if walls[next.1][next.0] {
+            dir = (-dir.1, dir.0);
         } else {
-            self.position = new_location;
-        }
-    }
-
-    fn turn_right(&mut self) {
-        self.direction = match self.direction {
-            Direction::North => Direction::East,
-            Direction::East => Direction::South,
-            Direction::South => Direction::West,
-            Direction::West => Direction::North,
+            guard = next;
+            route.insert(pos_idx(guard));
         }
     }
 }
 
-#[derive(Clone)]
-struct Lab {
-    guard: Guard,
-    width: usize,
-    height: usize,
-    obstacles: HashSet<Point>,
-}
+fn is_loop(
+    mut guard: (usize, usize),
+    new_obstruction: (usize, usize),
+    walls: &Vec<Vec<bool>>,
+) -> bool {
+    let mut dir = (0, -1);
+    let mut route: HashSet<usize> = HashSet::from_iter([posdir_idx(guard, dir)]);
 
-fn parse(input: &str) -> Lab {
-    let mut guard: Option<Guard> = None;
-    let mut width = 0;
-    let mut height = 0;
-    let mut obstacles: HashSet<Point> = HashSet::new();
-
-    for (row, line) in input.lines().enumerate() {
-        if height < row {
-            height = row;
-        }
-
-        for (col, value) in line.chars().enumerate() {
-            if width < col {
-                width = col;
-            }
-
-            match value {
-                '#' => {
-                    obstacles.insert(Point {
-                        x: col as i32,
-                        y: row as i32,
-                    });
-                }
-                '^' | '>' | 'v' | '<' => {
-                    guard = Some(Guard::new(
-                        Direction::from(value),
-                        Point::new(col as i32, row as i32),
-                    ));
-                }
-                '.' => (),
-                _ => panic!("Unknown value: {}", value.to_string()),
-            }
-        }
-    }
-
-    Lab {
-        guard: guard.unwrap(),
-        width: width + 1,
-        height: height + 1,
-        obstacles,
-    }
-}
-
-pub fn part1(input: &str) -> String {
-    let Lab {
-        mut guard,
-        width,
-        height,
-        obstacles,
-    } = parse(&input);
-
-    let mut visited: HashSet<Point> = HashSet::from([guard.position]);
     loop {
-        guard.move_forward(&obstacles);
-        if guard.position.x < 0
-            || guard.position.y < 0
-            || guard.position.x == width as i32
-            || guard.position.y == height as i32
-        {
-            return visited.len().to_string();
+        let next = (
+            guard.0.wrapping_add_signed(dir.0),
+            guard.1.wrapping_add_signed(dir.1),
+        );
+
+        if !(next.0 < walls[0].len() && next.1 < walls.len()) {
+            return false;
         }
 
-        visited.insert(guard.position);
+        if walls[next.1][next.0] || next == new_obstruction {
+            dir = (-dir.1, dir.0);
+        } else {
+            guard = next;
+            if !route.insert(posdir_idx(guard, dir)) {
+                return true;
+            }
+        }
     }
 }
 
-#[allow(unreachable_code)]
-pub fn part2(input: &str) -> String {
-    return "disabled".to_string();
-    let lab = parse(&input);
-    let Lab {
-        mut guard,
-        width,
-        height,
-        obstacles,
-    } = lab.clone();
-
-    let mut visited: HashSet<Point> = HashSet::from([guard.position]);
-    loop {
-        guard.move_forward(&obstacles);
-        if guard.position.x < 0
-            || guard.position.y < 0
-            || guard.position.x == width as i32
-            || guard.position.y == height as i32
-        {
-            break;
-        }
-
-        visited.insert(guard.position);
-    }
-
-    let mut valid = 0;
-
-    for pos in visited {
-        let Lab {
-            mut guard,
-            width,
-            height,
-            mut obstacles,
-        } = lab.clone();
-        obstacles.insert(pos);
-        let mut visited: HashSet<(Point, Direction)> =
-            HashSet::from([(guard.position, guard.direction)]);
-        loop {
-            guard.move_forward(&obstacles);
-            if guard.position.x < 0
-                || guard.position.y < 0
-                || guard.position.x == width as i32
-                || guard.position.y == height as i32
-            {
-                break;
-            }
-
-            if visited.contains(&(guard.position, guard.direction)) {
-                valid += 1;
-                break;
-            }
-            visited.insert((guard.position, guard.direction));
-        }
-    }
-
-    valid.to_string()
+pub fn part1(input: &str) -> Solution {
+    let (walls, guard) = parse(&input);
+    Solution::Usize(patrol(guard, &walls).len())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn example() {
-        let input = "....#.....
-.........#
-..........
-..#.......
-.......#..
-..........
-.#..^.....
-........#.
-#.........
-......#...";
-        assert_eq!(part1(&input), "41");
-        assert_eq!(part2(&input), "6");
-    }
+pub fn part2(input: &str) -> Solution {
+    assert_eq!(idx_pos(pos_idx((5, 5))), (5, 5));
+    let (walls, guard) = parse(&input);
+    let route = patrol(guard, &walls);
+    Solution::Usize(route.into_iter().filter(|&pos| is_loop(guard, idx_pos(pos), &walls)).count())
 }

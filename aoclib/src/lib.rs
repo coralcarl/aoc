@@ -7,10 +7,12 @@ use std::io::prelude::*;
 use reqwest::blocking::Client;
 
 pub mod geometry;
+pub mod solution;
 
 static mut TOKEN: Option<&str> = None;
 
-pub fn read_input(input_folder: PathBuf, year: usize, day: usize) -> String {
+pub fn read_input(year: usize, day: usize) -> String {
+    let input_folder: PathBuf = [env!("CARGO_MANIFEST_DIR"), "input"].iter().collect();
     let file_path = input_folder.join(format!("{day:02}.txt"));
     let input = std::fs::read_to_string(&file_path);
 

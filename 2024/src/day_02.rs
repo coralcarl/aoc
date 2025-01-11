@@ -1,3 +1,5 @@
+use aoclib::solution::Solution;
+
 fn find_bad_level(report: &[usize]) -> Option<usize> {
     let inc = report[0] < report[1];
     for (i, l) in report.windows(2).enumerate() {
@@ -19,28 +21,30 @@ fn parse_reports(input: &str) -> Vec<Vec<usize>> {
         .collect()
 }
 
-pub fn part1(input: &str) -> String {
-    parse_reports(input)
-        .iter()
-        .filter(|report| find_bad_level(report).is_none())
-        .count()
-        .to_string()
+pub fn part1(input: &str) -> Solution {
+    Solution::Usize(
+        parse_reports(input)
+            .iter()
+            .filter(|report| find_bad_level(report).is_none())
+            .count(),
+    )
 }
 
-pub fn part2(input: &str) -> String {
-    parse_reports(input)
-        .iter()
-        .filter(|report| match find_bad_level(report) {
-            None => true,
-            Some(i) if i == 1 => {
-                find_bad_level(&report[1..]).is_none()
-                    || find_bad_level(&[&report[..1], &report[2..]].concat()).is_none()
-            }
-            Some(i) => {
-                find_bad_level(&[&report[..i], &report[i + 1..]].concat()).is_none()
-                    || find_bad_level(&[&report[..i + 1], &report[i + 2..]].concat()).is_none()
-            }
-        })
-        .count()
-        .to_string()
+pub fn part2(input: &str) -> Solution {
+    Solution::Usize(
+        parse_reports(input)
+            .iter()
+            .filter(|report| match find_bad_level(report) {
+                None => true,
+                Some(i) if i == 1 => {
+                    find_bad_level(&report[1..]).is_none()
+                        || find_bad_level(&[&report[..1], &report[2..]].concat()).is_none()
+                }
+                Some(i) => {
+                    find_bad_level(&[&report[..i], &report[i + 1..]].concat()).is_none()
+                        || find_bad_level(&[&report[..i + 1], &report[i + 2..]].concat()).is_none()
+                }
+            })
+            .count(),
+    )
 }

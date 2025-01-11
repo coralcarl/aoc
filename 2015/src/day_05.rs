@@ -1,21 +1,20 @@
 fn three_vowels(s: &str) -> bool {
-    s.bytes().zip(s.bytes().skip(1)).any(|(a, b)| a == b)
+    const VOWELS: [u8; 5] = [b'a', b'e', b'o', b'i', b'u'];
+    s.bytes().filter(|b| VOWELS.contains(b)).count() >= 3
 }
 
 fn twice_in_a_row(s: &str) -> bool {
-    s.bytes()
-        .filter(|b| *b == b'a' || *b == b'e' || *b == b'u' || *b == b'i' || *b == b'o')
-        .count()
-        >= 3
+    s.as_bytes().windows(2).any(|v| v[0] == v[1])
 }
 
 fn no_bad_strings(s: &str) -> bool {
-    !s.bytes().zip(s.bytes().skip(1)).any(|(a, b)| {
-        a == b'a' && b == b'b'
-            || a == b'c' && b == b'd'
-            || a == b'p' && b == b'q'
-            || a == b'x' && b == b'y'
-    })
+    const AB: [u8; 2] = [b'a', b'b'];
+    const CD: [u8; 2] = [b'c', b'd'];
+    const PQ: [u8; 2] = [b'p', b'q'];
+    const XY: [u8; 2] = [b'x', b'y'];
+    !s.as_bytes()
+        .windows(2)
+        .any(|v| v == AB || v == CD || v == PQ || v == XY)
 }
 
 fn is_nice(s: &str) -> bool {
@@ -23,11 +22,14 @@ fn is_nice(s: &str) -> bool {
 }
 
 fn pair_appears_twice(s: &str) -> bool {
-    (0..s.len() - 3).any(|i| (i + 2..s.len() - 1).any(|j| s[i..i + 2] == s[j..j + 2]))
+    s.as_bytes()
+        .windows(2)
+        .enumerate()
+        .any(|(i, a)| s.as_bytes()[i + 2..].windows(2).any(|b| a == b))
 }
 
 fn letter_repeats_spaced(s: &str) -> bool {
-    s.bytes().zip(s.bytes().skip(2)).any(|(a, b)| a == b)
+    s.as_bytes().windows(3).any(|v| v[0] == v[2])
 }
 
 fn is_nice_better(s: &str) -> bool {

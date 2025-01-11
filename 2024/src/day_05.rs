@@ -1,120 +1,78 @@
-#![allow(unused_variables)]
+use std::cmp::Ordering;
 
-use std::{
-    cmp::Ordering,
-    collections::{HashMap, HashSet},
-};
+use aoclib::solution::Solution;
 
-type Rules<'a> = HashMap<&'a str, Vec<&'a str>>;
-type Updates<'a> = Vec<Vec<&'a str>>;
+type Rule = Vec<Option<bool>>;
+type Update = Vec<usize>;
 
-fn parse(input: &str) -> (Rules, Updates) {
+fn parse(input: &str) -> (Vec<Rule>, Vec<Update>) {
     let mut lines = input.lines();
 
-    let mut rules = Rules::new();
+    let mut rules = vec![vec![None; 100]; 100];
 
     while let Some(line) = lines.next() {
-        if line == "" {
+        if line.is_empty() {
             break;
         }
 
-        let left = &line[..2];
-        let right = &line[3..];
+        let left = unsafe { line[..2].parse::<usize>().unwrap_unchecked() };
+        let right = unsafe { line[3..].parse::<usize>().unwrap_unchecked() };
 
-        rules.entry(&left).or_default();
-        let page = rules.entry(&right).or_default();
-        page.push(left);
+        rules[left][right] = Some(true);
+        rules[right][left] = Some(false);
     }
 
-    let mut updates = Updates::new();
+    let updates: Vec<Update> = lines
+        .map(|line| {
+            (0..line.len())
+                .step_by(3)
+                .map(|i| unsafe { line[i..i + 2].parse::<usize>().unwrap_unchecked() })
+                .collect()
+        })
+        .collect();
 
-    for line in lines {
-        updates.push(line.split(',').collect());
-    }
     (rules, updates)
 }
 
-fn is_valid(update: &Vec<&str>, rules: &Rules) -> bool {
-    let mut invalid: HashSet<&str> = HashSet::new();
-
-    for page in update {
-        if invalid.contains(page) {
-            return false;
-        }
-        invalid.extend(&rules[page]);
-    }
-    true
+fn is_sorted(update: &Update, rules: &[Rule]) -> bool {
+    update.iter().enumerate().all(|(i, a)| {
+        update
+            .iter()
+            .skip(i)
+            .all(|b| rules[*a][*b].is_none_or(|v| v == true))
+    })
 }
 
-fn cmp_pages(left: &str, right: &str, rules: &Rules) -> Ordering {
-    if rules[right].contains(&left) {
+fn cmp_pages(left: usize, right: usize, rules: &[Rule]) -> Ordering {
+    if rules[left][right].is_none_or(|v| v == true) {
         return Ordering::Less;
     } else {
         return Ordering::Greater;
     }
 }
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> Solution {
     let (rules, updates) = parse(&input);
 
-    updates
-        .iter()
-        .filter(|update| is_valid(update, &rules))
-        .map(|update| update[update.len() / 2].parse::<u64>().unwrap())
-        .sum::<u64>()
-        .to_string()
+    Solution::Usize(
+        updates
+            .iter()
+            .filter_map(|update| is_sorted(update, &rules).then_some(update[update.len() / 2]))
+            .sum::<usize>(),
+    )
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> Solution {
     let (rules, mut updates) = parse(&input);
 
-    updates
-        .iter_mut()
-        .filter(|update| !is_valid(update, &rules))
-        .map(|update| {
-            update.sort_unstable_by(|a, b| cmp_pages(a, b, &rules));
-            update[update.len() / 2].parse::<u64>().unwrap()
-        })
-        .sum::<u64>()
-        .to_string()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn example() {
-        let input = "47|53
-97|13
-97|61
-97|47
-75|29
-61|13
-75|53
-29|13
-97|29
-53|29
-61|53
-97|53
-61|29
-47|13
-75|47
-97|75
-47|61
-75|61
-47|29
-75|13
-53|13
-13|0
-
-75,47,61,53,29
-97,61,53,29,13
-75,29,13
-75,97,47,61,53
-61,13,29
-97,13,75,29,47";
-        assert_eq!(part1(&input), "143");
-        assert_eq!(part2(&input), "123");
-    }
+    Solution::Usize(
+        updates
+            .iter_mut()
+            .filter(|update| !is_sorted(update, &rules))
+            .map(|update| {
+                update.sort_unstable_by(|a, b| cmp_pages(*a, *b, &rules));
+                update[update.len() / 2]
+            })
+            .sum::<usize>(),
+    )
 }

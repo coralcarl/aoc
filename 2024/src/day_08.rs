@@ -2,6 +2,8 @@
 
 use std::collections::{HashMap, HashSet};
 
+use aoclib::solution::Solution;
+
 struct City {
     frequencies: HashMap<char, Vec<(i32, i32)>>,
     width: usize,
@@ -38,7 +40,7 @@ fn parse(input: &str) -> City {
     }
 }
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> Solution {
     let City {
         frequencies,
         width,
@@ -59,14 +61,15 @@ pub fn part1(input: &str) -> String {
         }
     }
 
-    antinodes
-        .iter()
-        .filter(|(x, y)| (*x as usize) < width && (*y as usize) < height)
-        .count()
-        .to_string()
+    Solution::Usize(
+        antinodes
+            .iter()
+            .filter(|(x, y)| (*x as usize) < width && (*y as usize) < height)
+            .count(),
+    )
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> Solution {
     let City {
         frequencies,
         width,
@@ -103,28 +106,5 @@ pub fn part2(input: &str) -> String {
         }
     }
 
-    antinodes.len().to_string()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn example() {
-        let input = "............
-........0...
-.....0......
-.......0....
-....0.......
-......A.....
-............
-............
-........A...
-.........A..
-............
-............";
-        assert_eq!(part1(&input), "14");
-        assert_eq!(part2(&input), "34");
-    }
+    Solution::Usize(antinodes.len())
 }

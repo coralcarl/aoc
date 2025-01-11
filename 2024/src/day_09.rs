@@ -1,5 +1,3 @@
-#![allow(unused_variables)]
-
 pub fn part1(input: &str) -> String {
     let files = input[..input.len() - 1]
         .bytes()

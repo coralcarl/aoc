@@ -1,3 +1,4 @@
+use aoclib::solution::Solution;
 use std::collections::HashMap;
 
 fn parse(input: &str) -> (Vec<usize>, Vec<usize>) {
@@ -15,18 +16,19 @@ fn parse(input: &str) -> (Vec<usize>, Vec<usize>) {
     (list1, list2)
 }
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> Solution {
     let mut lists = parse(&input);
     lists.0.sort();
     lists.1.sort();
 
-    (0..lists.0.len())
-        .map(|i| lists.0[i].abs_diff(lists.1[i]))
-        .sum::<usize>()
-        .to_string()
+    Solution::Usize(
+        (0..lists.0.len())
+            .map(|i| lists.0[i].abs_diff(lists.1[i]))
+            .sum::<usize>(),
+    )
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> Solution {
     let (list1, list2) = parse(&input);
 
     let mut counts: HashMap<usize, usize> = HashMap::new();
@@ -35,9 +37,10 @@ pub fn part2(input: &str) -> String {
         *counts.entry(item).or_default() += item;
     }
 
-    list1
-        .into_iter()
-        .map(|item| *counts.entry(item).or_default())
-        .sum::<usize>()
-        .to_string()
+    Solution::Usize(
+        list1
+            .into_iter()
+            .map(|item| *counts.entry(item).or_default())
+            .sum::<usize>(),
+    )
 }
