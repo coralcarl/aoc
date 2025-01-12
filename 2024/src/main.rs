@@ -37,7 +37,7 @@ fn main() {
         (5, (day_05::part1, day_05::part2)),
         (6, (day_06::part1, day_06::part2)),
         (7, (day_07::part1, day_07::part2)),
-        // (8, (day_08::part1, day_08::part2)),
+        (8, (day_08::part1, day_08::part2)),
         // (9, (day_09::part1, day_09::part2)),
         // (10, (day_10::part1, day_10::part2)),
         // (11, (day_11::part1, day_11::part2)),
