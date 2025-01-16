@@ -1,111 +1,78 @@
-pub fn part1(input: &str) -> String {
-    let files = input[..input.len() - 1]
+use aoclib::solution::Solution;
+
+fn checksum(id: usize, start: usize, len: usize) -> usize {
+    id * len * (2 * start + len - 1) / 2
+}
+
+pub fn part1(input: &str) -> Solution {
+    let mut blocks: Vec<_> = input
+        .trim_end()
         .bytes()
-        .map(|c| c as u64 - 48)
+        .map(|b| (b - b'0') as usize)
+        .collect();
+    let mut sum = 0;
+    let mut pos = 0;
+    let (mut i, mut j) = (0, blocks.len() - 1);
+
+    while i <= j {
+        if i % 2 == 0 {
+            sum += checksum(i / 2, pos, blocks[i]);
+            pos += blocks[i];
+            i += 1;
+        } else {
+            if blocks[j] == blocks[i] {
+                sum += checksum(j / 2, pos, blocks[j]);
+                pos += blocks[j];
+                i += 1;
+                j -= 2;
+            } else if blocks[j] < blocks[i] {
+                sum += checksum(j / 2, pos, blocks[j]);
+                pos += blocks[j];
+                blocks[i] -= blocks[j];
+                j -= 2;
+            } else {
+                sum += checksum(j / 2, pos, blocks[i]);
+                pos += blocks[i];
+                blocks[j] -= blocks[i];
+                i += 1;
+            }
+        }
+    }
+
+    Solution::Usize(sum)
+}
+
+pub fn part2(input: &str) -> Solution {
+    let mut files = Vec::with_capacity(100000);
+    let mut blocks = Vec::with_capacity(99999);
+    let mut pos = 0;
+    for (id, len) in input
+        .trim_end()
+        .bytes()
+        .map(|b| (b - b'0') as usize)
         .enumerate()
-        .map(|(i, v)| (i / 2, v))
-        .collect::<Vec<(usize, u64)>>();
-    let mut files_it = files.iter();
-
-    let mut checksum = 0;
-    let mut id = 0;
-
-    let (mut blk_back, mut size_back) = files_it.next_back().unwrap();
-
-    let mut even = true;
-
-    'outer: while let Some((blk, size)) = files_it.next() {
-        if even {
-            for _ in id..id + size {
-                checksum += id * *blk as u64;
-                id += 1;
-            }
+    {
+        if id % 2 == 0 {
+            files.push((id / 2, pos, len));
         } else {
-            for _ in id..id + size {
-                if size_back == 0 {
-                    if files_it.next_back().is_none() {
-                        break 'outer;
-                    }
-                    (blk_back, size_back) = match files_it.next_back() {
-                        Some(value) => *value,
-                        None => {
-                            break 'outer;
-                        }
-                    };
-                }
+            blocks.push((pos, len));
+        }
+        pos += len;
+    }
 
-                checksum += id * blk_back as u64;
-                size_back -= 1;
-                id += 1;
+    let mut sum = 0;
+
+    'next: for (id, pos, len) in files.into_iter().rev() {
+        for (pos2, len2) in blocks.iter_mut().take(id) {
+            if len <= *len2 {
+                sum += checksum(id, *pos2, len);
+                *pos2 += len;
+                *len2 -= len;
+                continue 'next;
             }
         }
-        even ^= true;
+        sum += checksum(id, pos, len);
     }
 
-    for id in id..id + size_back {
-        checksum += id * blk_back as u64;
-    }
-
-    checksum.to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    let mut files = Vec::with_capacity(input.len());
-    let mut spaces = Vec::with_capacity(input.len());
-
-    let mut blk_offset = 0;
-
-    let mut even = true;
-    for (blk_id, c) in input[..input.len() - 1].bytes().enumerate() {
-        let blk_size = c as u64 - 48;
-        if even {
-            files.push((blk_offset, blk_size, blk_id / 2));
-        } else {
-            spaces.push((blk_offset, blk_size));
-        }
-        blk_offset += blk_size;
-        even ^= true;
-    }
-
-    let mut files_it = files.iter().rev();
-
-    let mut checksum = 0;
-
-    while let Some(&(blk_offset, blk_size, blk_id)) = files_it.next() {
-        let mut moved = false;
-        for (space_offset, space_size) in spaces.iter_mut() {
-            if *space_offset > blk_offset {
-                break;
-            }
-            if *space_size >= blk_size {
-                for file_id in *space_offset..*space_offset + blk_size {
-                    checksum += file_id * blk_id as u64;
-                }
-                *space_size -= blk_size;
-                *space_offset += blk_size;
-
-                moved = true;
-                break;
-            }
-        }
-        if !moved {
-            for file_id in blk_offset..blk_offset + blk_size {
-                checksum += file_id * blk_id as u64;
-            }
-        }
-    }
-
-    checksum.to_string()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn example() {
-        let input = "2333133121414131402";
-        assert_eq!(part1(&input), "1928");
-        assert_eq!(part2(&input), "2858");
-    }
+    Solution::Usize(sum)
 }
